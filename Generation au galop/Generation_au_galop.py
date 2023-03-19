@@ -1,5 +1,4 @@
-from logging import exception
-from xml.etree.ElementTree import tostring
+
 import requests
 import os
 
@@ -14,6 +13,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from PIL import Image
 
@@ -50,16 +50,53 @@ def record_images(urls):
         
         url = url.strip('\n')
         filename = str(i) + ".jpg"
-        r = requests.get(url, allow_redirects=True)
-        open(filename, 'wb').write(r.content)
-    
-         
+        try:
+            r = requests.get(url, allow_redirects=True)
+            open(filename, 'wb').write(r.content)
+        except Exception:
+            image = Image.new('RGB',(300,200),(250,250,250))
+            image.save(filename,"JPEG")
 
 
     return i
 
-urltest = "https://www.florian-djambazian.fr"
-url ="https://www.1538mediterranee.com/"
+def create_images(images):
+
+
+    for i in range(16):
+        try:
+            images.append(Image.open(str(i+1)+".jpg"))
+        except Exception:
+            images.append(Image.new('RGB',(300,200),(250,250,250)))
+
+def resize_images(images):
+    
+    for i in range(16):
+        images[i] = images[i].resize((300,200))
+
+def creation_generationAuGalop(images,generationAuGalop):
+    
+    i=0
+    j=0
+    k=0
+    while(i<16):
+
+        generationAuGalop.paste(images[i],(j,k))
+        j+=300
+        if(j==1200):
+            j=0
+            k+=200
+        i+=1
+
+def delete_images():
+ 
+    for i in range(16):
+        os.remove(str(i+1)+".jpg")
+
+
+url = "https://www.florian-djambazian.fr"
+currentFolder =os.getcwd()
+
 page = requests.get(url)
 soup = BeautifulSoup(page.content,'html.parser')
 title = str.split(soup.title.string)
@@ -73,28 +110,30 @@ print(wordsToSearch)
 sentence = make_sentence(wordsToSearch)
 print(sentence)
 
+print("Ouverture de chrome !")
 chrome_options = Options()
-#chrome_options.add_argument("--headless")
-prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
-chrome_options.add_experimental_option("prefs", prefs)
+#prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
+#chrome_options.add_experimental_option("prefs", prefs)
+chrome_options.add_argument('headless')
 chrome_options.add_argument("--window-size=1920x1080")
 chrome_options.add_argument("--disable-notifications")
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--verbose')
-chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": "c:/",
-        "download.prompt_for_download": True,
-        "download.directory_upgrade": True,
-        "safebrowsing_for_trusted_sources_enabled": False,
-        "safebrowsing.enabled": False
-})
-#chrome_options.add_argument('--disable-gpu')
-#chrome_options.add_argument('--disable-software-rasterizer')
+chrome_options.add_argument("download.default_directory=C/:")
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument('--disable-software-rasterizer') 
 prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
 chrome_options.add_experimental_option("prefs", prefs)
 
-driver = webdriver.Chrome(executable_path = 'C:/Users/Flordjam/Downloads/chromedriver.exe' ,chrome_options = chrome_options)
+
+driver = webdriver.Chrome(chrome_options = chrome_options)
+
+
+
+params = {'behavior': 'allow', 'downloadPath': currentFolder}
+driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
 driver.get("https://images.google.com/")
+
 time.sleep(1)
 
 consent_button = driver.find_element(by=By.ID,value='L2AGLb')
@@ -104,7 +143,6 @@ search_bar = driver.find_element(by=By.CLASS_NAME,value="gLFyf")
 search_bar.send_keys(sentence)
 time.sleep(1)
 search_bar.send_keys(Keys.ENTER)
-
 time.sleep(5)
 
 script = """
@@ -134,78 +172,30 @@ if(--count == 0) {
 }, 50);
 });
 """
-
 driver.execute_script(script)
 time.sleep(1)
-driver.quit()
+driver.quit
 
-fileUrls = open("C:/Users/Flordjam/Downloads/urls.txt", "r")
 
+
+fileUrls = open(currentFolder+r"\urls.txt", "r")
 urls = fileUrls.readlines()
-print(urls)
 fileUrls.close()
 
-os.remove("C:/Users/Flordjam/Downloads/urls.txt")
+os.remove(currentFolder+r"\urls.txt")
 
+print("record images !")
 record_images(urls)
 
-image1 = Image.open("1.jpg")
-image2 = Image.open("2.jpg")
-image3 = Image.open("3.jpg")
-image4 = Image.open("4.jpg")
-image5 = Image.open("5.jpg")
-image6 = Image.open("6.jpg")
-image7 = Image.open("7.jpg")
-image8 = Image.open("8.jpg")
-image9 = Image.open("9.jpg")
-image10 = Image.open("10.jpg")
-image11 = Image.open("11.jpg")
-image12 = Image.open("12.jpg")
-image13 = Image.open("13.jpg")
-image14 = Image.open("14.jpg")
-image15 = Image.open("15.jpg")
-image16 = Image.open("16.jpg")
+images = []
 
-image1 = image1.resize((300,200))
-image2 =image2.resize(((300,200)))
-image3 =image3.resize((300,200))
-image4 =image4.resize((300,200))
-image5 =image5.resize((300,200))
-image6 =image6.resize((300,200))
-image7 =image7.resize((300,200))
-image8 =image8.resize((300,200))
-image9 =image9.resize((300,200))
-image10 =image10.resize((300,200))
-image11 =image11.resize((300,200))
-image12 =image12.resize((300,200))
-image13 =image13.resize((300,200))
-image14 =image14.resize((300,200))
-image15 =image15.resize((300,200))
-image16 =image16.resize((300,200))
-
-
+create_images(images)
+resize_images(images)
+delete_images()
 
 generationAuGalop = Image.new('RGB',(300*4,200*4),(250,250,250))
+creation_generationAuGalop(images,generationAuGalop)
 
-generationAuGalop.paste(image1,(0,0))
-generationAuGalop.paste(image2,(300,0))
-generationAuGalop.paste(image3,(600,0))
-generationAuGalop.paste(image4,(900,0))
-
-generationAuGalop.paste(image5,(0,200))
-generationAuGalop.paste(image6,(300,200))
-generationAuGalop.paste(image7,(600,200))
-generationAuGalop.paste(image8,(900,200))
-   
-generationAuGalop.paste(image9,(0,400))
-generationAuGalop.paste(image10,(300,400))
-generationAuGalop.paste(image11,(600,400))
-generationAuGalop.paste(image12,(900,400))
-
-generationAuGalop.paste(image13,(0,600))
-generationAuGalop.paste(image14,(300,600))
-generationAuGalop.paste(image15,(600,600))
-generationAuGalop.paste(image16,(900,600))
 
 generationAuGalop.show()
 generationAuGalop.save("generationAuGalop.jpg","JPEG")
