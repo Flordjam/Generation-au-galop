@@ -1,7 +1,6 @@
 
 
-from tkinter import messagebox
-from turtle import width
+
 import requests
 
 import time
@@ -16,6 +15,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 
 from tkinter import * 
+from tkinter import messagebox
 from PIL import Image
 
 
@@ -96,9 +96,13 @@ def creation_generationAuGalop(images,generationAuGalop):
             k+=200
         i+=1
 
-def delete_images():
- 
-    for i in range(16):
+def delete_images(urls):
+
+    u=len(urls)
+    if u>16:
+        u=16
+
+    for i in range(u):
         os.remove(str(i+1)+".jpg")
 
 
@@ -115,7 +119,7 @@ def generation():
     try:
         page = requests.get(url)
     except Exception:
-        messagebox.showerror("Erreur","Impossible to connect! \n")
+        messagebox.showerror("Erreur","There is a connexion problem \nGo to Help menu for more details")
         canvas.itemconfigure(image_container,image = profil)
         canvas.update()
         label.config(text="Try again!")
@@ -127,22 +131,18 @@ def generation():
     title = str.split(soup.title.string)
     
     words = returnTheWords(title)
-    print(words)
 
     wordsToSearch =select_words(words)
     print(wordsToSearch)
 
     sentence = make_sentence(wordsToSearch)
-    print(sentence)
     
-    label.config(text="Initialise research.")
+    label.config(text="Initialise research")
     label.update()
     canvas.itemconfigure(image_container,image = sablierTurn)
     canvas.update()
 
     chrome_options = Options()
-    #prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
-    #chrome_options.add_experimental_option("prefs", prefs)
     chrome_options.add_argument('headless')
     chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--disable-notifications")
@@ -165,7 +165,7 @@ def generation():
 
     time.sleep(1)
 
-    label.config(text="Research Begin.")
+    label.config(text="Research Begin")
     label.update()
     canvas.itemconfigure(image_container,image = sablier)
     canvas.update()
@@ -179,7 +179,7 @@ def generation():
     
     search_bar.send_keys(Keys.ENTER)
     time.sleep(5)
-    label.config(text="Urls are downloaded.")
+    label.config(text="Urls are downloaded")
     label.update()    
     script = """
     var urls = [];
@@ -219,7 +219,7 @@ def generation():
     fileUrls.close()
 
     os.remove(currentFolder+r"\urls.txt")
-    label.config(text="Save images !")
+    label.config(text="Save images")
     label.update()
     canvas.itemconfigure(image_container,image = sablierTurn)
     canvas.update()
@@ -229,12 +229,12 @@ def generation():
 
     create_images(images)
     resize_images(images)
-    delete_images()
+    delete_images(urls)
 
     generationAuGalop = Image.new('RGB',(300*4,200*4),(250,250,250))
     creation_generationAuGalop(images,generationAuGalop)
    
-    label.config(text="Creation of Generation au Galop!")
+    label.config(text="Creation of the image : Generation au Galop")
     label.update()
     canvas.itemconfigure(image_container,image = sablier)
     canvas.update()
@@ -243,15 +243,19 @@ def generation():
 
     canvas.itemconfigure(image_container,image = profil)
     canvas.update()
-    label.config(text="Finished! The image has been saved.")
+    label.config(text="Finished! The image has been saved")
     label.update()
+
+def generationEvent(event):
+    generation()
 
 def Help():
     fileHelp = open(currentFolder+r"\Interface\help.txt", "r")
     helps = fileHelp.read()
     fileHelp.close()
     windowsHelp = Toplevel(fenetre)
-    textHelp = Text(windowsHelp)
+    windowsHelp.geometry('800x300')
+    textHelp = Text(windowsHelp,width=300)
     textHelp.insert(1.0,helps)
     textHelp.pack()
     
@@ -260,10 +264,9 @@ def Help():
 
 currentFolder =os.getcwd()
 
-
 fenetre = Tk()
 fenetre.title("Generation au Galop")
-fenetre.geometry("900x400")
+fenetre.geometry("900x300")
 sablier = PhotoImage(file=currentFolder +r"\Interface\Sablier.gif")
 sablierTurn = PhotoImage(file=currentFolder +r"\Interface\SablierTurn.gif")
 profil = PhotoImage(file=currentFolder +r"\Interface\Galop.gif")
@@ -282,6 +285,11 @@ fenetre.config(menu=menubar,bg ="white")
 
 frame1 = Frame(fenetre)
 frame1.pack(side=LEFT)
+
+canvas = Canvas(frame1,width=309, height=163,bg="white")
+image_container = canvas.create_image(0, 0, anchor=NW, image=profil)
+canvas.pack(side=TOP, padx=5, pady=5)
+
 saisie = Entry()
 label = Label(frame1, text="Enter a website : ",font=("Courier", 20))
 label.pack(side=TOP, padx=5, pady=5)
@@ -292,19 +300,22 @@ text.pack(side=BOTTOM, padx=5, pady=20)
 text.insert(0,"https://www.florian-djambazian.fr/")
 
 
-canvas = Canvas(fenetre,width=309, height=163,bg="white")
-image_container = canvas.create_image(0, 0, anchor=NW, image=profil)
-canvas.pack(side=TOP, padx=5, pady=5)
 
 
+frame2 = Frame(fenetre)
+frame2.pack(side=RIGHT)
 
+label_border = Frame(frame2, highlightbackground = "black", highlightthickness = 2, bd=0)
+label = Label(label_border, text="Welcome",font=("Courier", 15), width = 60)
+label.pack(side=TOP, padx=5, pady=5)
+label_border.pack(side=TOP, padx=5, pady=31)
 
-label = Label(fenetre, text="Welcome.",font=("Courier", 15), width = 60)
-label.pack(side=BOTTOM, padx=5, pady=5)
-bouton_border = Frame(fenetre, highlightbackground = "black", highlightthickness = 2, bd=0)
-
-bouton = Button(bouton_border, text ='Enter',command = generation,height = 5, width = 10, bg ="DarkGoldenrod1",font=("Courier", 12))
+bouton_border = Frame(frame2, highlightbackground = "black", highlightthickness = 2, bd=0)
+bouton = Button(bouton_border, text ='Generate \nImage',command = generation,height = 5, width = 10, bg ="DarkGoldenrod1",font=("Courier", 12))
 bouton.pack(side=BOTTOM, padx=5, pady=5)
-bouton_border.pack(side=BOTTOM, padx=5, pady=5)
+bouton_border.pack(side=BOTTOM, padx=5, pady=31)
+
+fenetre.bind("<Return>",generationEvent)
+
 fenetre.mainloop()
 

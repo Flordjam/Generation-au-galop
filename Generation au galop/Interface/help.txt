@@ -1,8 +1,9 @@
 Welcome to the help of 'Generation au Galop'.
 
-Enter the address of a website and click the enter button.
+Enter the address of a website and click on generate image button or press Return.
 
 
 If you have an error occur check:
+	-The website adress has been write correctly.
 	-Your Internet connexion.
 	-The website must contain all the addresses with the http:// or https://.
