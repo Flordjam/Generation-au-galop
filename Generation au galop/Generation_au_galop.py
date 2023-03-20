@@ -6,6 +6,8 @@ import requests
 import time
 import os
 
+import codecs
+
 from bs4 import BeautifulSoup
 from random import *
 from selenium import webdriver
@@ -250,26 +252,49 @@ def generationEvent(event):
     generation()
 
 def Help():
-    fileHelp = open(currentFolder+r"\Interface\help.txt", "r")
-    helps = fileHelp.read()
-    fileHelp.close()
+    
+    global windowsHelp 
     windowsHelp = Toplevel(fenetre)
-    windowsHelp.geometry('800x300')
+    windowsHelp.geometry('800x400')
+    global textHelp 
     textHelp = Text(windowsHelp,width=300)
-    textHelp.insert(1.0,helps)
-    textHelp.pack()
+
+    frameHelp = Frame(windowsHelp)
+    frameHelp.pack(side=BOTTOM)
+
+    boutonFrancais = Button(frameHelp, text ='Francais',command =HelpCommandFrancais ,height = 5, width = 10)
+    boutonFrancais.pack(side=LEFT)
+    boutonEnglish = Button(frameHelp, text ='English',command= HelpCommandEnglish ,height = 5, width = 10)
+    boutonEnglish.pack(side=RIGHT)
     
 
+def HelpCommandFrancais():
+    fileHelpFrancais = open(currentFolder+r"\Interface\helpFrancais.help", "r", encoding='utf-8')
+    helpsFrancais = fileHelpFrancais.read()
+    fileHelpFrancais.close()
+    textHelp.delete(1.0,"end")
+    textHelp.insert(1.0,helpsFrancais)
+    textHelp.pack(side = TOP)
 
+def HelpCommandEnglish():
+    fileHelpEnglish = open(currentFolder+r"\Interface\helpEnglish.help", "r")
+    helpsEnglish = fileHelpEnglish.read()
+    fileHelpEnglish.close()
+    textHelp.delete(1.0,"end")
+    textHelp.insert(1.0,helpsEnglish)
+    textHelp.pack(side = TOP)
 
-currentFolder =os.getcwd()
 
 fenetre = Tk()
 fenetre.title("Generation au Galop")
 fenetre.geometry("900x300")
+
+currentFolder =os.getcwd()
 sablier = PhotoImage(file=currentFolder +r"\Interface\Sablier.gif")
 sablierTurn = PhotoImage(file=currentFolder +r"\Interface\SablierTurn.gif")
 profil = PhotoImage(file=currentFolder +r"\Interface\Galop.gif")
+
+
 
 menubar = Menu(fenetre)
 
