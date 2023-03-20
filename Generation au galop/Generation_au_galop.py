@@ -1,7 +1,8 @@
 
-import requests
-import os
 
+from tkinter import messagebox
+from turtle import width
+import requests
 
 import time
 import os
@@ -13,9 +14,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+from tkinter import * 
 from PIL import Image
+
+
 
 
 
@@ -35,10 +38,15 @@ def select_words(words):
         words.pop(number)
         number = randint(0,len(words)-1)
         wordsToReturn.append(words[number])
+    else:
+        wordsToReturn = words
     return wordsToReturn
 
 def make_sentence(words):
-    sentence = words[0] +" "+words[1]
+    if len(words) > 1:
+        sentence = words[0] +" "+words[1]
+    else:
+        sentence = words
     return sentence
 
 def record_images(urls):
@@ -94,113 +102,209 @@ def delete_images():
         os.remove(str(i+1)+".jpg")
 
 
-url = "https://www.florian-djambazian.fr"
+def changeImageTosablier():
+    canvas.itemconfigure(image_container,image = sablier)
+
+def generation():
+   
+    
+    url = text.get()
+    canvas.itemconfigure(image_container,image = sablier)
+    canvas.update()
+    
+    try:
+        page = requests.get(url)
+    except Exception:
+        messagebox.showerror("Erreur","Impossible to connect! \n")
+        canvas.itemconfigure(image_container,image = profil)
+        canvas.update()
+        label.config(text="Try again!")
+        label.update()
+        return
+        
+
+    soup = BeautifulSoup(page.content,'html.parser')
+    title = str.split(soup.title.string)
+    
+    words = returnTheWords(title)
+    print(words)
+
+    wordsToSearch =select_words(words)
+    print(wordsToSearch)
+
+    sentence = make_sentence(wordsToSearch)
+    print(sentence)
+    
+    label.config(text="Initialise research.")
+    label.update()
+    canvas.itemconfigure(image_container,image = sablierTurn)
+    canvas.update()
+
+    chrome_options = Options()
+    #prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
+    #chrome_options.add_experimental_option("prefs", prefs)
+    chrome_options.add_argument('headless')
+    chrome_options.add_argument("--window-size=1920x1080")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--verbose')
+    chrome_options.add_argument("download.default_directory=C/:")
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-software-rasterizer') 
+    prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
+    chrome_options.add_experimental_option("prefs", prefs)
+
+
+    driver = webdriver.Chrome(chrome_options = chrome_options)
+
+
+
+    params = {'behavior': 'allow', 'downloadPath': currentFolder}
+    driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
+    driver.get("https://images.google.com/")
+
+    time.sleep(1)
+
+    label.config(text="Research Begin.")
+    label.update()
+    canvas.itemconfigure(image_container,image = sablier)
+    canvas.update()
+
+    consent_button = driver.find_element(by=By.ID,value='L2AGLb')
+    consent_button.click()
+
+    search_bar = driver.find_element(by=By.CLASS_NAME,value="gLFyf")
+    search_bar.send_keys(sentence)
+    time.sleep(1)
+    
+    search_bar.send_keys(Keys.ENTER)
+    time.sleep(5)
+    label.config(text="Urls are downloaded.")
+    label.update()    
+    script = """
+    var urls = [];
+    var count = 0;
+    var toReturn;
+    [...document.querySelectorAll('.rg_i')].forEach((element, index) => {
+    let el = element.parentElement.parentElement;
+    el.click();
+    count++;
+    setTimeout(() => {
+    let google_url = el.href;
+    let start = google_url.indexOf('=' , google_url.indexOf('imgurl'))+1;
+    let encoded = google_url.substring(start, google_url.indexOf('&', start));
+    let url = decodeURIComponent(encoded);
+    urls.push(url);
+    console.log(count);
+    console.log(url);
+    if(--count == 0) {
+       let textToSave = urls.join('\\n');
+        let hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'urls.txt';
+        hiddenElement.click();
+    }
+    }, 50);
+    });
+    """
+    driver.execute_script(script)
+    time.sleep(1)
+    driver.quit
+
+
+
+    fileUrls = open(currentFolder+r"\urls.txt", "r")
+    urls = fileUrls.readlines()
+    fileUrls.close()
+
+    os.remove(currentFolder+r"\urls.txt")
+    label.config(text="Save images !")
+    label.update()
+    canvas.itemconfigure(image_container,image = sablierTurn)
+    canvas.update()
+    record_images(urls)
+
+    images = []
+
+    create_images(images)
+    resize_images(images)
+    delete_images()
+
+    generationAuGalop = Image.new('RGB',(300*4,200*4),(250,250,250))
+    creation_generationAuGalop(images,generationAuGalop)
+   
+    label.config(text="Creation of Generation au Galop!")
+    label.update()
+    canvas.itemconfigure(image_container,image = sablier)
+    canvas.update()
+    generationAuGalop.show()
+    generationAuGalop.save("generationAuGalop.jpg","JPEG")
+
+    canvas.itemconfigure(image_container,image = profil)
+    canvas.update()
+    label.config(text="Finished! The image has been saved.")
+    label.update()
+
+def Help():
+    fileHelp = open(currentFolder+r"\Interface\help.txt", "r")
+    helps = fileHelp.read()
+    fileHelp.close()
+    windowsHelp = Toplevel(fenetre)
+    textHelp = Text(windowsHelp)
+    textHelp.insert(1.0,helps)
+    textHelp.pack()
+    
+
+
+
 currentFolder =os.getcwd()
 
-page = requests.get(url)
-soup = BeautifulSoup(page.content,'html.parser')
-title = str.split(soup.title.string)
 
-words = returnTheWords(title)
-print(words)
+fenetre = Tk()
+fenetre.title("Generation au Galop")
+fenetre.geometry("900x400")
+sablier = PhotoImage(file=currentFolder +r"\Interface\Sablier.gif")
+sablierTurn = PhotoImage(file=currentFolder +r"\Interface\SablierTurn.gif")
+profil = PhotoImage(file=currentFolder +r"\Interface\Galop.gif")
 
-wordsToSearch =select_words(words)
-print(wordsToSearch)
+menubar = Menu(fenetre)
 
-sentence = make_sentence(wordsToSearch)
-print(sentence)
+menuFile = Menu(menubar, tearoff=0)
+menuFile.add_command(label="Quit", command=fenetre.destroy)
+menubar.add_cascade(label="Quit",menu=menuFile) 
 
-print("Ouverture de chrome !")
-chrome_options = Options()
-#prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
-#chrome_options.add_experimental_option("prefs", prefs)
-chrome_options.add_argument('headless')
-chrome_options.add_argument("--window-size=1920x1080")
-chrome_options.add_argument("--disable-notifications")
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--verbose')
-chrome_options.add_argument("download.default_directory=C/:")
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--disable-software-rasterizer') 
-prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
-chrome_options.add_experimental_option("prefs", prefs)
+menuHelp = Menu(menubar, tearoff=0)
+menuHelp.add_command(label="Help", command=Help)
+menubar.add_cascade(label="Help",menu=menuHelp) 
+
+fenetre.config(menu=menubar,bg ="white")
+
+frame1 = Frame(fenetre)
+frame1.pack(side=LEFT)
+saisie = Entry()
+label = Label(frame1, text="Enter a website : ",font=("Courier", 20))
+label.pack(side=TOP, padx=5, pady=5)
 
 
-driver = webdriver.Chrome(chrome_options = chrome_options)
+text = Entry(frame1, width=35)
+text.pack(side=BOTTOM, padx=5, pady=20)
+text.insert(0,"https://www.florian-djambazian.fr/")
 
 
-
-params = {'behavior': 'allow', 'downloadPath': currentFolder}
-driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
-driver.get("https://images.google.com/")
-
-time.sleep(1)
-
-consent_button = driver.find_element(by=By.ID,value='L2AGLb')
-consent_button.click()
-
-search_bar = driver.find_element(by=By.CLASS_NAME,value="gLFyf")
-search_bar.send_keys(sentence)
-time.sleep(1)
-search_bar.send_keys(Keys.ENTER)
-time.sleep(5)
-
-script = """
-var urls = [];
-var count = 0;
-var toReturn;
-[...document.querySelectorAll('.rg_i')].forEach((element, index) => {
-let el = element.parentElement.parentElement;
-el.click();
-count++;
-setTimeout(() => {
-let google_url = el.href;
-let start = google_url.indexOf('=' , google_url.indexOf('imgurl'))+1;
-let encoded = google_url.substring(start, google_url.indexOf('&', start));
-let url = decodeURIComponent(encoded);
-urls.push(url);
-console.log(count);
-console.log(url);
-if(--count == 0) {
-   let textToSave = urls.join('\\n');
-    let hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
-    hiddenElement.target = '_blank';
-    hiddenElement.download = 'urls.txt';
-    hiddenElement.click();
-}
-}, 50);
-});
-"""
-driver.execute_script(script)
-time.sleep(1)
-driver.quit
-
-
-
-fileUrls = open(currentFolder+r"\urls.txt", "r")
-urls = fileUrls.readlines()
-fileUrls.close()
-
-os.remove(currentFolder+r"\urls.txt")
-
-print("record images !")
-record_images(urls)
-
-images = []
-
-create_images(images)
-resize_images(images)
-delete_images()
-
-generationAuGalop = Image.new('RGB',(300*4,200*4),(250,250,250))
-creation_generationAuGalop(images,generationAuGalop)
-
-
-generationAuGalop.show()
-generationAuGalop.save("generationAuGalop.jpg","JPEG")
+canvas = Canvas(fenetre,width=309, height=163,bg="white")
+image_container = canvas.create_image(0, 0, anchor=NW, image=profil)
+canvas.pack(side=TOP, padx=5, pady=5)
 
 
 
 
+label = Label(fenetre, text="Welcome.",font=("Courier", 15), width = 60)
+label.pack(side=BOTTOM, padx=5, pady=5)
+bouton_border = Frame(fenetre, highlightbackground = "black", highlightthickness = 2, bd=0)
+
+bouton = Button(bouton_border, text ='Enter',command = generation,height = 5, width = 10, bg ="DarkGoldenrod1",font=("Courier", 12))
+bouton.pack(side=BOTTOM, padx=5, pady=5)
+bouton_border.pack(side=BOTTOM, padx=5, pady=5)
+fenetre.mainloop()
 
