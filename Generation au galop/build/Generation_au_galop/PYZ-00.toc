@@ -1,4 +1,4 @@
-('h:\\Programmation\\Pgeneration au Galop\\Generation au galop\\Generation au '
+('H:\\Programmation\\Pgeneration au Galop\\Generation au galop\\Generation au '
  'galop\\build\\Generation_au_galop\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\PIL\\__init__.py',
@@ -2532,17 +2532,11 @@
   ('tkinter.messagebox',
    'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tkinter\\messagebox.py',
    'PYMODULE'),
-  ('tkinter.simpledialog',
-   'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tkinter\\simpledialog.py',
-   'PYMODULE'),
   ('tracemalloc',
    'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tracemalloc.py',
    'PYMODULE'),
   ('tty',
    'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tty.py',
-   'PYMODULE'),
-  ('turtle',
-   'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\turtle.py',
    'PYMODULE'),
   ('typing',
    'C:\\Users\\Flordjam\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\typing.py',

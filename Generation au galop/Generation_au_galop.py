@@ -1,12 +1,8 @@
-
-
-
 import requests
 
 import time
 import os
 
-import codecs
 
 from bs4 import BeautifulSoup
 from random import *
@@ -159,7 +155,8 @@ def generation():
 
     driver = webdriver.Chrome(chrome_options = chrome_options)
 
-
+    canvas.itemconfigure(image_container,image = sablier)
+    canvas.update()
 
     params = {'behavior': 'allow', 'downloadPath': currentFolder}
     driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
@@ -169,8 +166,7 @@ def generation():
 
     label.config(text="Research Begin")
     label.update()
-    canvas.itemconfigure(image_container,image = sablier)
-    canvas.update()
+    
 
     consent_button = driver.find_element(by=By.ID,value='L2AGLb')
     consent_button.click()
@@ -178,9 +174,16 @@ def generation():
     search_bar = driver.find_element(by=By.CLASS_NAME,value="gLFyf")
     search_bar.send_keys(sentence)
     time.sleep(1)
-    
+
+    canvas.itemconfigure(image_container,image = sablierTurn)
+    canvas.update()
+
     search_bar.send_keys(Keys.ENTER)
-    time.sleep(5)
+    time.sleep(1)
+
+    canvas.itemconfigure(image_container,image = sablier)
+    canvas.update()
+
     label.config(text="Urls are downloaded")
     label.update()    
     script = """
@@ -211,6 +214,8 @@ def generation():
     });
     """
     driver.execute_script(script)
+    canvas.itemconfigure(image_container,image = sablier)
+    canvas.update()
     time.sleep(1)
     driver.quit
 

@@ -1,8 +1,0 @@
-Welcome to the help of 'Generation au Galop'.
-
-Enter the address of a website and click the enter button.
-
-
-If you have an error occur check:
-	-Your Internet connexion.
-	-The website must contain all the addresses with the http:// or https://.
