@@ -5,7 +5,7 @@ import os
 
 
 from bs4 import BeautifulSoup
-from random import *
+from random import randint
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -20,7 +20,7 @@ from PIL import Image
 
 
 
-
+#Return the words of a string as a list
 def returnTheWords(sentence):
     words =[]
     for word in sentence:
@@ -28,6 +28,7 @@ def returnTheWords(sentence):
             words.append(word)
     return words
 
+#Return a maximum of two random words
 def select_words(words):
     wordsToReturn = []
     if len(words) > 2:
@@ -40,6 +41,7 @@ def select_words(words):
         wordsToReturn = words
     return wordsToReturn
 
+#Return a String of a list composed of words
 def make_sentence(words):
     if len(words) > 1:
         sentence = words[0] +" "+words[1]
@@ -47,6 +49,7 @@ def make_sentence(words):
         sentence = words
     return sentence
 
+#Download the images form urls
 def record_images(urls):
     i = 0
     for url in urls:
@@ -80,6 +83,7 @@ def resize_images(images):
     for i in range(16):
         images[i] = images[i].resize((300,200))
 
+#Creation of generation au galop image 4x4
 def creation_generationAuGalop(images,generationAuGalop):
     
     i=0
@@ -121,7 +125,7 @@ def generation():
         fenetre.changeLabel("Try again!")
         return
         
-
+    #Parsing the url to get the title in HTML
     soup = BeautifulSoup(page.content,'html.parser')
     title = str.split(soup.title.string)
     
@@ -131,11 +135,11 @@ def generation():
     print(wordsToSearch)
 
     sentence = make_sentence(wordsToSearch)
-    
-  
+
     fenetre.changeLabel("Initialise research")
     fenetre.changeImage("sablierTurn")
 
+    #Creation of the chrome Option
     chrome_options = Options()
     chrome_options.add_argument('headless')
     chrome_options.add_argument("--window-size=1920x1080")
@@ -148,23 +152,24 @@ def generation():
     prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
     chrome_options.add_experimental_option("prefs", prefs)
 
-
     driver = webdriver.Chrome(chrome_options = chrome_options)
 
-    
-    fenetre.changeImage("sablier")
 
+    fenetre.changeImage("sablier")
+    #Give the current folder as download path
     params = {'behavior': 'allow', 'downloadPath': currentFolder}
     driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
+
     driver.get("https://images.google.com/")
 
     time.sleep(1)
 
     fenetre.changeLabel("Research Begin")
 
+    #Accept cookies
     consent_button = driver.find_element(by=By.ID,value='L2AGLb')
     consent_button.click()
-
+    #start a reseach
     search_bar = driver.find_element(by=By.CLASS_NAME,value="gLFyf")
     search_bar.send_keys(sentence)
     time.sleep(1)
@@ -205,6 +210,7 @@ def generation():
     }, 50);
     });
     """
+    #Execute the script to download the urls images
     driver.execute_script(script)
 
     fenetre.changeImage("sablier")
@@ -212,7 +218,7 @@ def generation():
     driver.quit
 
 
-
+    #Save the urls into a list
     fileUrls = open(currentFolder+r"\urls.txt", "r")
     urls = fileUrls.readlines()
     fileUrls.close()
@@ -243,6 +249,7 @@ def generation():
     fenetre.changeImage("profil")
     fenetre.changeLabel("Finished! The image has been saved")
 
+#Use if you press return
 def generationEvent(event):
     generation()
 
@@ -280,7 +287,7 @@ def HelpCommandEnglish():
     textHelp.delete(1.0,"end")
     textHelp.insert(1.0,helpsEnglish)
     textHelp.pack(side = TOP)
-
+#HMI
 class Fenetre(Tk):
     def __init__(self):
         Tk.__init__(self)
@@ -317,9 +324,6 @@ class Fenetre(Tk):
         global image_container
         image_container = canvas.create_image(0, 0, anchor=NW, image=profil)
         canvas.pack(side=TOP, padx=5, pady=5)
-        canvas.update()
-
-        saisie = Entry()
 
         global label
         label = Label(frame1, text="Enter a website : ",font=("Courier", 20))
@@ -364,7 +368,7 @@ class Fenetre(Tk):
         label.update()
 
 
-
+#MAIN
 fenetre = Fenetre()
 fenetre.changeImage("profil")
 fenetre.mainloop()
