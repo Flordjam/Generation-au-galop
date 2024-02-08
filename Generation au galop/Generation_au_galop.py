@@ -140,21 +140,21 @@ def generation():
     fenetre.changeImage("sablierTurn")
 
     #Creation of the chrome Option
-    chrome_options = Options()
-    chrome_options.add_argument('headless')
-    chrome_options.add_argument("--window-size=1920x1080")
-    chrome_options.add_argument("--disable-notifications")
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--verbose')
-    chrome_options.add_argument("download.default_directory=C/:")
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--disable-software-rasterizer') 
+    chrome_option = Options()
+    chrome_option.add_argument('headless')
+    chrome_option.add_argument("--window-size=1920x1080")
+    chrome_option.add_argument("--disable-notifications")
+    chrome_option.add_argument('--no-sandbox')
+    chrome_option.add_argument('--verbose')
+    chrome_option.add_argument("download.default_directory=C/:")
+    chrome_option.add_argument('--disable-gpu')
+    chrome_option.add_argument('--disable-software-rasterizer') 
     prefs = {'profile.default_content_setting_values.automatic_downloads': 1}
-    chrome_options.add_experimental_option("prefs", prefs)
+    chrome_option.add_experimental_option("prefs", prefs)
 
-    driver = webdriver.Chrome(chrome_options = chrome_options)
+    driver = webdriver.Chrome(options = chrome_option)
 
-
+    time.sleep(1)
     fenetre.changeImage("sablier")
     #Give the current folder as download path
     params = {'behavior': 'allow', 'downloadPath': currentFolder}
